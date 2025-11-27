@@ -3,4 +3,5 @@ export interface createPatientInput {
   email: string;
   contactNumber: string;
   address: string;
+  password:string;
 }

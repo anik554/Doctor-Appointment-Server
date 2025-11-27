@@ -4,24 +4,26 @@
   "main": "server.js",
   "author": "shafayat",
   "license": "MIT",
-  "prisma":{
-    "schema":"./prisma/schema"
+  "prisma": {
+    "schema": "./prisma/schema/"
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.0.1",
+    "@prisma/client": "6.11.1",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "http-status": "^2.1.0"
+    "http-status": "^2.1.0",
+    "http-status-codes": "^2.3.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.0",
-    "prisma": "^7.0.1",
+    "prisma": "6.11.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2"
   }
