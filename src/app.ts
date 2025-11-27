@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req: Request, res: Response) => {
     res.send({
+        status: "success",
         message: `Server is Running at ${config.port}`,
         environment: config.node_env,
         uptime: process.uptime().toFixed(2) + " sec..",
