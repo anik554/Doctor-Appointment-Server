@@ -5,7 +5,7 @@ import sendResponse from "../../shared/sendResponse";
 import httpCodes from 'http-status-codes'
 
 const createPatient = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
-    const patient = await UserServices.createPatient(req.body)
+    const patient = await UserServices.createPatient(req)
     sendResponse(res,{
         statusCode: httpCodes.CREATED,
         success: true,
