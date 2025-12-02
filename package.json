@@ -5,7 +5,7 @@
   "author": "shafayat",
   "license": "MIT",
   "prisma": {
-    "schema": "./prisma/schema/"
+    "schema": "./prisma/schema"
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts"
