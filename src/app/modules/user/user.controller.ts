@@ -45,8 +45,8 @@ const createAdmin = catchAsync(
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 
-  const filter = pick(req.query,userFilterableFields)
-  const options = pick(req.query,userFilterableOptions)
+  const filter = pick(req.query,userFilterableFields) // searching, filtering
+  const options = pick(req.query,userFilterableOptions) // pagination and sorting
 
   const users = await UserServices.getAllUsers(filter,options);
   sendResponse(res, {

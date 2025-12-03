@@ -12,13 +12,13 @@ const login = catchAsync(
       secure: true,
       httpOnly: true,
       sameSite: "none",
-      maxAge: 1000 * 60 * 60,
+      maxAge: 15 * 60 * 1000,
     });
     res.cookie("refreshToken", refreshToken, {
       secure: true,
       httpOnly: true,
       sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24 * 90,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     sendResponse(res, {
       statusCode: httpCodes.CREATED,

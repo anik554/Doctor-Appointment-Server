@@ -1,16 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import jwt, { Secret, SignOptions } from "jsonwebtoken";
+import jwt, { JwtPayload, Secret, SignOptions } from "jsonwebtoken";
 
-const generateToken =
-  (payload: string | object, secret: Secret, expiresIn: string) =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    const token = jwt.sign(payload, secret, {
-      algorithm: "HS256",
-      expiresIn,
-    } as SignOptions);
-    return token;
-  };
+type ExpiresIn = string | number;
+
+const generateToken = (
+  payload: string | object | Buffer,
+  secret: Secret,
+  expiresIn: ExpiresIn
+) => {
+  return jwt.sign(payload, secret, {
+    algorithm: "HS256",
+    expiresIn,
+  } as SignOptions);
+};
+
+const verifyToken = (token: string, secret: Secret) => {
+  return jwt.verify(token, secret) as JwtPayload;
+};
 
 export const jwtHelper = {
   generateToken,
+  verifyToken,
 };

@@ -20,13 +20,14 @@ const login = async (payload: { email: string; password: string }) => {
     throw new Error("Password is incorrect!");
   }
   const userData = {
-    email: payload.password,
+    id: user.id,
+    email: user.email,
     role: user.role,
   };
   const accessToken = jwtHelper.generateToken(
     userData,
     config.access_token_secret!,
-    config.access_token_secret!
+    config.access_token_expiresin!
   );
   const refreshToken = jwtHelper.generateToken(
     userData,
