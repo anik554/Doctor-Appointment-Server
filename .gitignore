@@ -4,3 +4,5 @@ dist
 .env.test
 
 /src/generated/prisma
+
+/src/generated/prisma
