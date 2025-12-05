@@ -15,4 +15,5 @@ export default {
   access_token_expiresin: process.env.ACCESS_TOKEN_EXPIRESIN,
   refresh_token_secret: process.env.REFRESH_TOKEN_SECRET,
   refresh_token_expiresin: process.env.REFRESH_TOKEN_EXPIRESIN,
+  interval_time: Number(process.env.INTERVAL_TIME),
 };
