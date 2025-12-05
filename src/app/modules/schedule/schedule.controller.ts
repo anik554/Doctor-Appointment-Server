@@ -1,3 +1,4 @@
+import { IJWTUserPayload } from './../../types/common.types';
 import { NextFunction, Request, Response } from "express";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
@@ -16,11 +17,12 @@ const createSchedule = catchAsync(async(req:Request, res:Response, next:NextFunc
     })
 })
 
-const getScheduleForDoctor = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
+const getScheduleForDoctor = catchAsync(async(req:Request & {user?:IJWTUserPayload}, res:Response, next:NextFunction)=>{
+    const userData = req.user;
     const options = pick(req.query,["page","limit","sortBy","sortOrder"])
     const filters = pick(req.query, ["startDateTime","endDateTime"])
 
-    const result = await ScheduleServices.getScheduleForDoctor(options,filters)
+    const result = await ScheduleServices.getScheduleForDoctor(userData as IJWTUserPayload,options,filters)
 
     sendResponse(res,{
         statusCode : httpCodes.OK,

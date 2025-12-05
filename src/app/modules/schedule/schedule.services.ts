@@ -1,9 +1,11 @@
+import { IJWTUserPayload } from './../../types/common.types';
 import config from "../../../config";
 import { addMinutes,addHours,format } from "date-fns";
 import { prisma } from "../../shared/prisma";
 import { paginationHelper } from "../../helpers/paginationHelper";
 import { Prisma } from "@prisma/client";
-
+import ApiError from '../../errors/api.errors';
+import httpCodes from "http-status-codes";
 
 const createSchedule = async (payload: any) => {
   const { startDate, endDate, startTime, endTime } = payload;
@@ -57,7 +59,7 @@ const createSchedule = async (payload: any) => {
   return schedules;
 };
 
-const getScheduleForDoctor = async(options:any,filters:any)=>{
+const getScheduleForDoctor = async(userData:IJWTUserPayload,options:any,filters:any)=>{
   const {page,limit,skip,sortBy,sortOrder}=paginationHelper.calculatePagination(options);
   const {startDateTime: filterStartDateTime,endDateTime: filterEndDateTime}=filters;
 
@@ -83,8 +85,21 @@ const getScheduleForDoctor = async(options:any,filters:any)=>{
     AND: andConditions
   }:{}
 
+  const doctorSchedules = await prisma.doctorSchedule.findMany({
+    where:{
+      doctor:{
+        email:userData.email
+      }
+    },
+    select:{
+      scheduleId:true
+    }
+  })
+
+  const doctorScheduleIds = doctorSchedules.map(schedule => schedule.scheduleId)
+
   const result = await prisma.schedule.findMany({
-    where: whereConditions,
+    where: {...whereConditions, id:{notIn:doctorScheduleIds}},
     skip,
     take: limit,
     orderBy:{
@@ -93,7 +108,7 @@ const getScheduleForDoctor = async(options:any,filters:any)=>{
   });
 
   const total = await prisma.schedule.count({
-    where: whereConditions
+    where: {...whereConditions, id:{notIn:doctorScheduleIds}}
   })
 
   return {
@@ -113,7 +128,7 @@ const deleteSchedule = async(id:string)=>{
     }
   })
   if(!isExistingSchedule){
-    throw new Error("Schedule Already Deleted!!")
+    throw new ApiError(httpCodes.NOT_FOUND,"Schedule Already Deleted!!")
   }
   const result = await prisma.schedule.delete({
     where:{

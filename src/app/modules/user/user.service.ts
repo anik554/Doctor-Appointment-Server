@@ -6,6 +6,8 @@ import { fileUploader } from "../../helpers/imageUploader";
 import { Prisma, UserRole, UserStatus } from "@prisma/client";
 import { IOptions, paginationHelper } from "../../helpers/paginationHelper";
 import { userSearchableFields } from "./user.constant";
+import ApiError from "../../errors/api.errors";
+import httpStatusCode from "http-status-codes"
 
 const createPatient = async (req: Request) => {
   if (req.file) {
@@ -28,7 +30,7 @@ const createPatient = async (req: Request) => {
     return result;
   } catch (error: any) {
     if (error.code === "P2002") {
-      throw new Error("Email already exists");
+      throw new ApiError(httpStatusCode.CONFLICT,"Email already exists");
     }
     throw error;
   }
@@ -56,7 +58,7 @@ const createDoctor = async (req: Request) => {
     return result;
   } catch (error: any) {
     if (error.code === "P2002") {
-      throw new Error("Email already exists");
+      throw new ApiError(httpStatusCode.CONFLICT,"Email already exists");
     }
     throw error;
   }
@@ -84,7 +86,7 @@ const createAdmin = async (req: Request) => {
     return result;
   } catch (error: any) {
     if (error.code === "P2002") {
-      throw new Error("Email already exists");
+      throw new ApiError(httpStatusCode.CONFLICT,"Email already exists");
     }
     throw error;
   }
