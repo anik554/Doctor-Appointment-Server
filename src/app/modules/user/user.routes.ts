@@ -8,7 +8,6 @@ const router = express.Router();
 
 router.post(
   "/create-patient",
-  auth(UserRole.ADMIN),
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = UserValidation.createPatientValidationSchema.parse(
@@ -20,6 +19,7 @@ router.post(
 
 router.post(
   "/create-doctor",
+  auth(UserRole.ADMIN),
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = UserValidation.createDoctorValidationSchema.parse(

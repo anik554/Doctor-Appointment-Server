@@ -5,8 +5,8 @@ import { UserRole } from "@prisma/client"
 
 const router = express.Router()
 
-router.post("/create-schedule", ScheduleController.createSchedule)
+router.post("/create-schedule",auth(UserRole.ADMIN), ScheduleController.createSchedule)
 router.get("/doctor-schedules",auth(UserRole.ADMIN,UserRole.DOCTOR),ScheduleController.getScheduleForDoctor)
-router.delete("/delete-schedule/:id",ScheduleController.deleteSchedule)
+router.delete("/delete-schedule/:id",auth(UserRole.ADMIN),ScheduleController.deleteSchedule)
 
 export const ScheduleRoutes = router
