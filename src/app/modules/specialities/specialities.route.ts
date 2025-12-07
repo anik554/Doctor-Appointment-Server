@@ -1,6 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
 import { SpecialitiesControllers } from "./specialities.controller";
-import validationRequest from "../../middlewares/validateRequest";
 import { SpecialitiesZodValidations } from "./specialities.validation";
 import { fileUploader } from "../../helpers/imageUploader";
 
