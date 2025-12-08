@@ -129,7 +129,32 @@ const updateDoctorProfile = async (
   });
 };
 
+const getDoctorById = async(id:string)=>{
+    const isDoctorExists = await prisma.doctor.findUniqueOrThrow({
+        where:{
+            id
+        }
+    })
+    return isDoctorExists;
+}
+
+const deleteDoctor = async(id:string)=>{
+    const isDoctorExists = await prisma.doctor.findUniqueOrThrow({
+        where:{
+            id
+        }
+    })
+    const result = await prisma.doctor.delete({
+        where:{
+            id: isDoctorExists.id
+        }
+    })
+    return result;
+}
+
 export const DoctorServices = {
   getDoctorList,
   updateDoctorProfile,
+  getDoctorById,
+  deleteDoctor
 };
