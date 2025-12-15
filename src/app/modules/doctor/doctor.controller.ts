@@ -57,9 +57,21 @@ const deleteDoctor = catchAsync(async(req:Request,res:Response,next:NextFunction
     })
 })
 
+const getAISuggestions = catchAsync(async(req:Request,res:Response)=>{
+    const result = await DoctorServices.getAISuggestions(req.body);
+
+    sendResponse(res,{
+        statusCode:httpStatus.OK,
+        success:true,
+        message:"AI suggestions fetched Successfully",
+        data:result
+    })
+})
+
 export const DoctorControllers ={
     getDoctorList,
     updateDoctorProfile,
     getDoctorById,
-    deleteDoctor
+    deleteDoctor,
+    getAISuggestions
 }

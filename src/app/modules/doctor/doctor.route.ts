@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get("/doctor-list", DoctorControllers.getDoctorList);
 router.patch("/update-doctor-profile/:id", DoctorControllers.updateDoctorProfile);
+router.post("/suggestion", DoctorControllers.getAISuggestions)
 router.get("/:id", DoctorControllers.getDoctorById);
 router.delete("/:id", DoctorControllers.deleteDoctor);
 
