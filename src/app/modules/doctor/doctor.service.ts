@@ -6,6 +6,7 @@ import { DoctorUpdateInput } from "./doctor.interface";
 import ApiError from "../../errors/api.errors";
 import httpStatus from "http-status-codes"
 import { openai } from "../../helpers/openRouter";
+import { extractJsonFromMessage } from "../../helpers/extractJsonFromMessage";
 
 const getDoctorList = async (options: IOptions, filters: any) => {
   const { page, limit, skip, sortBy, sortOrder } =
@@ -156,11 +157,11 @@ const deleteDoctor = async(id:string)=>{
 }
 
 const getAISuggestions = async (payload: { symtomps: string }) => {
-  if (!payload?.symtomps) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Symptom is required");
+  console.log("symptoms",payload.symtomps)
+  if (!payload?.symtomps?.trim()) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "symtomps is required");
   }
 
-  // 1️⃣ Load doctors
   const doctors = await prisma.doctor.findMany({
     where: { isdeleted: false },
     include: {
@@ -179,97 +180,43 @@ const getAISuggestions = async (payload: { symtomps: string }) => {
     );
   }
 
-  // 2️⃣ User prompt
-  const userPrompt = `
-Patient Symptoms:
-${payload.symtomps}
+const systemPrompt = "You are a helpful AI medical assistant that provides doctor suggestions.";
 
-Available Doctors:
+const simplifiedDoctors = doctors.map(d => ({
+  id: d.id,
+  name: d.name,
+  experience: d.experience,
+  specialities: d.doctorSpecialities.map(
+    ds => ds.specialities.title
+  ),
+}));
+
+ const prompt = `
+You are a medical assistant AI. Based on the patient's symptoms, suggest the top 3 most suitable doctors.
+Each doctor has specialties and years of experience.
+Only suggest doctors who are relevant to the given symptoms.
+
+Symptoms: ${payload.symtomps}
+
+Here is the doctor list (in JSON):
 ${JSON.stringify(doctors, null, 2)}
 
-Instructions:
-1. Analyze the patient's symptoms carefully
-2. Match symptoms with the most appropriate medical specialities
-3. Recommend up to 3 doctors from the provided list
-4. Rank doctors by relevance (highest first)
-5. Give a short reason for each recommendation
-
-Response Format (JSON only):
-{
-  "recommendations": [
-    {
-      "doctorId": "string",
-      "doctorName": "string",
-      "specialities": ["string"],
-      "experience": number,
-      "designation": "string",
-      "currentWorkingPlace": "string",
-      "appointmentFee": number,
-      "relevanceScore": number,
-      "reason": "string"
-    }
-  ],
-  "symptomAnalysis": "string",
-  "urgencyLevel": "low | medium | high",
-  "disclaimer": "string"
-}
-
-Important:
-- Return ONLY valid JSON
-- Do NOT include explanations or markdown
-- Use ONLY the provided doctor data
+Return your response in JSON format with full individual doctor data. 
 `;
 
-  // 3️⃣ System prompt
-  const systemPrompt = `
-You are a medical triage assistant.
-- Analyze patient symptoms
-- Match symptoms with medical specialities
-- Recommend suitable doctors from the provided list
-- Never give medical diagnosis
-- Always return valid JSON only
-`;
-
-  // 4️⃣ OpenRouter call
   const completion = await openai.chat.completions.create({
-    model: "tngtech/deepseek-r1t2-chimera:free",
+    model: "z-ai/glm-4.5-air:free",
     messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.3,
+      { role: "system", content: systemPrompt.trim() },
+      { role: "user", content: prompt.trim() },
+    ]
   });
 
-  // 5️⃣ Parse AI response
-  const aiMessage = completion.choices[0]?.message?.content;
-
-  if (!aiMessage) {
-    throw new ApiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      "Empty AI response"
-    );
-  }
-
-  let aiData;
-  try {
-    aiData = JSON.parse(aiMessage);
-  } catch {
-    throw new ApiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      "Invalid JSON returned by AI"
-    );
-  }
-
-  // 6️⃣ Basic validation
-  if (!Array.isArray(aiData?.recommendations)) {
-    throw new ApiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      "AI response structure invalid"
-    );
-  }
-
-  return aiData;
+  const result = extractJsonFromMessage(completion.choices[0]?.message);
+  return result
+  
 };
+
 
 export const DoctorServices = {
   getDoctorList,
