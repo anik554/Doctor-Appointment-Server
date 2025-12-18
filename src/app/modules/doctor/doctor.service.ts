@@ -64,6 +64,12 @@ const getDoctorList = async (options: IOptions, filters: any) => {
             include:{
                 specialities:true
             }
+        },
+        doctorSchedules:{
+            select:{
+              scheduleId:true,
+              schedule:true
+            }
         }
     }
   });
