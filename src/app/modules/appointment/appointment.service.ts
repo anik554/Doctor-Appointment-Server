@@ -1,3 +1,4 @@
+import { stripe } from "../../helpers/stripe";
 import { prisma } from "../../shared/prisma"
 import { IJWTUserPayload } from "../../types/common.types"
 import { v4 as uuidv4 } from 'uuid';
@@ -55,6 +56,26 @@ const createAppointment = async(user: IJWTUserPayload, payload:{scheduleId:strin
                 transactionId: transactionId
             }
         })
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            mode: "payment",
+            line_items: [
+                {
+                    price_data: {
+                    currency: "usd",
+                    product_data: {
+                        name: "Doctor Appointment Fee",
+                        description: `Appointment with: ${doctorData.name}`,
+                    },
+                    unit_amount: doctorData.appointmentFee * 100,
+                    },
+                    quantity: 1,
+                },
+            ],
+            success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
+        });
+        console.log("session",session)
         return appointmentData;  
     })
 
