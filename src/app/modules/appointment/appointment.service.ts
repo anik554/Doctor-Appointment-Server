@@ -49,7 +49,7 @@ const createAppointment = async(user: IJWTUserPayload, payload:{scheduleId:strin
         
         })
         const transactionId = uuidv4();
-        await tnx.payment.create({
+        const paymentData = await tnx.payment.create({
             data:{
                 appointmentId: appointmentData.id,
                 amount: doctorData.appointmentFee,
@@ -62,7 +62,7 @@ const createAppointment = async(user: IJWTUserPayload, payload:{scheduleId:strin
             line_items: [
                 {
                     price_data: {
-                    currency: "usd",
+                    currency: "bdt",
                     product_data: {
                         name: "Doctor Appointment Fee",
                         description: `Appointment with: ${doctorData.name}`,
@@ -72,11 +72,14 @@ const createAppointment = async(user: IJWTUserPayload, payload:{scheduleId:strin
                     quantity: 1,
                 },
             ],
+            metadata:{
+                appointmentId: appointmentData.id,
+                paymentId: paymentData.id
+            },
             success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
         });
-        console.log("session",session)
-        return appointmentData;  
+        return {payment_url:session.url};  
     })
 
     return result;

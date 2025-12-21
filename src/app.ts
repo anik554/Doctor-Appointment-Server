@@ -5,8 +5,10 @@ import notFound from './app/middlewares/notFound';
 import config from './config';
 import router from './app/routes';
 import cookieParser from 'cookie-parser';
+import { PaymentControllers } from './app/modules/payment/payment.controller';
 
 const app: Application = express();
+app.use("/webhook", express.raw({type: "application/json"}), PaymentControllers.handleWebHook)
 app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true
