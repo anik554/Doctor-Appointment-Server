@@ -37,7 +37,7 @@ const getAllAppointments = catchAsync(async(req:Request &{user?: IJWTUserPayload
     const user = req.user
     const filter = pick(req.query,userFilterableFields) // searching, filtering
     const options = pick(req.query,userFilterableOptions) // pagination and sorting
-    const result = await AppointmentServices.getMyAppointments(user as IJWTUserPayload, options, filter)
+    const result = await AppointmentServices.getAllAppointments(user as IJWTUserPayload, options, filter)
 
     sendResponse(res,{
         statusCode : httpCodes.OK,

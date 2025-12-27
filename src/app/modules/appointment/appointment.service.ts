@@ -130,19 +130,11 @@ const getAllAppointments = async (user:IJWTUserPayload, options:IOptions, params
     skip,
     take: limit,
     where: whereConditions,
-    include: {
-      patient: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-            }
-          }
-        }
-      }
+    include:{
+      patient: true,
+      doctor:true
     },
-      orderBy: {
+    orderBy: {
       [sortBy]: sortOrder,
     },
   });
@@ -155,7 +147,6 @@ const getAllAppointments = async (user:IJWTUserPayload, options:IOptions, params
     meta: {
       page,
       limit,
-      skip,
       total,
     },
     data: result,

@@ -1,3 +1,3 @@
 export const userSearchableFields =["email"]
 export const userFilterableFields=["status","role","email","searchTerm"]
-export const userFilterableOptions=["page","limit","sortBy","sortOrder"]
+export const userFilterableOptions=["page","limit","skip","sortBy","sortOrder"]
