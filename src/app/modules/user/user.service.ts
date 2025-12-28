@@ -7,7 +7,8 @@ import { Prisma, UserRole, UserStatus } from "@prisma/client";
 import { IOptions, paginationHelper } from "../../helpers/paginationHelper";
 import { userSearchableFields } from "./user.constant";
 import ApiError from "../../errors/api.errors";
-import httpStatusCode from "http-status-codes"
+import httpStatusCode from "http-status-codes";
+import { IJWTUserPayload } from "../../types/common.types";
 
 const createPatient = async (req: Request) => {
   if (req.file) {
@@ -30,7 +31,7 @@ const createPatient = async (req: Request) => {
     return result;
   } catch (error: any) {
     if (error.code === "P2002") {
-      throw new ApiError(httpStatusCode.CONFLICT,"Email already exists");
+      throw new ApiError(httpStatusCode.CONFLICT, "Email already exists");
     }
     throw error;
   }
@@ -58,7 +59,7 @@ const createDoctor = async (req: Request) => {
     return result;
   } catch (error: any) {
     if (error.code === "P2002") {
-      throw new ApiError(httpStatusCode.CONFLICT,"Email already exists");
+      throw new ApiError(httpStatusCode.CONFLICT, "Email already exists");
     }
     throw error;
   }
@@ -86,7 +87,7 @@ const createAdmin = async (req: Request) => {
     return result;
   } catch (error: any) {
     if (error.code === "P2002") {
-      throw new ApiError(httpStatusCode.CONFLICT,"Email already exists");
+      throw new ApiError(httpStatusCode.CONFLICT, "Email already exists");
     }
     throw error;
   }
@@ -144,9 +145,52 @@ const getAllUsers = async (params: any, options: IOptions) => {
   };
 };
 
+const getMyProfile = async (user: IJWTUserPayload) => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+    select: {
+      id: true,
+      email: true,
+      needPasswordChange: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  let profileData;
+  if (userInfo.role === UserRole.PATIENT) {
+    profileData = await prisma.patient.findUniqueOrThrow({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  } else if (userInfo.role === UserRole.DOCTOR) {
+    profileData = await prisma.doctor.findUniqueOrThrow({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  } else if (userInfo.role === UserRole.ADMIN) {
+    profileData = await prisma.admin.findUniqueOrThrow({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  }
+  
+  return {
+    ...userInfo,
+    ...profileData,
+  };
+};
+
 export const UserServices = {
   createPatient,
   createDoctor,
   createAdmin,
   getAllUsers,
+  getMyProfile,
 };

@@ -6,6 +6,8 @@ import { UserRole } from "@prisma/client";
 import auth from "../../middlewares/auth";
 const router = express.Router();
 
+router.get("/profile", auth(UserRole.ADMIN,UserRole.PATIENT,UserRole.PATIENT), UserController.getMyProfile);
+
 router.post(
   "/create-patient",
   fileUploader.upload.single("file"),

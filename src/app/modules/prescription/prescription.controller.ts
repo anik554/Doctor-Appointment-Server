@@ -25,6 +25,7 @@ const createPrescription = catchAsync(
 
 const getMyPrescriptions = catchAsync(
   async (req: Request & { user?: IJWTUserPayload }, res: Response) => {
+    const user = req.user;
     const options = pick(req.query, [
       "page",
       "limit",
@@ -33,7 +34,6 @@ const getMyPrescriptions = catchAsync(
       "sortOrder",
     ]);
     const fillters = pick(req.query, ["status", "paymentStatus"]);
-    const user = req.user;
     const result = await prescriptionServices.getMyPrescriptions(
       user as IJWTUserPayload,
       options,

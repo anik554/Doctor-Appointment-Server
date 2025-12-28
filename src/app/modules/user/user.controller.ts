@@ -6,6 +6,7 @@ import httpCodes from "http-status-codes";
 import { UserRole, UserStatus } from "@prisma/client";
 import pick from "../../helpers/pick";
 import { userFilterableFields, userFilterableOptions } from "./user.constant";
+import { IJWTUserPayload } from "../../types/common.types";
 
 const createPatient = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -58,9 +59,22 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyProfile = catchAsync( async(req: Request & {user?: IJWTUserPayload}, res: Response)=>{
+  const user = req.user;
+  const result = await UserServices.getMyProfile(user as IJWTUserPayload);
+
+  sendResponse(res, {
+    statusCode: httpCodes.OK,
+    success: true,
+    message: "My profile Data Fetched!",
+    data: result,
+  });
+})
+
 export const UserController = {
   createPatient,
   createDoctor,
   createAdmin,
   getAllUsers,
+  getMyProfile
 };
