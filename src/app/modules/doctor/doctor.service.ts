@@ -4,7 +4,7 @@ import { doctorSearchableFields } from "./doctor.constant";
 import { prisma } from "../../shared/prisma";
 import { DoctorUpdateInput } from "./doctor.interface";
 import ApiError from "../../errors/api.errors";
-import httpStatus from "http-status-codes"
+import httpStatus from "http-status-codes";
 import { openai } from "../../helpers/openRouter";
 import { extractJsonFromMessage } from "../../helpers/extractJsonFromMessage";
 
@@ -26,19 +26,19 @@ const getDoctorList = async (options: IOptions, filters: any) => {
     });
   }
 
-  if(specialities && specialities.length >0){
+  if (specialities && specialities.length > 0) {
     andConditons.push({
-        doctorSpecialities:{
-            some:{
-                specialities:{
-                    title:{
-                        contains:specialities,
-                        mode:"insensitive"
-                    }
-                }
-            }
-        }
-    })
+      doctorSpecialities: {
+        some: {
+          specialities: {
+            title: {
+              contains: specialities,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
+    });
   }
 
   if (Object.keys(filterData).length > 0) {
@@ -59,19 +59,24 @@ const getDoctorList = async (options: IOptions, filters: any) => {
     orderBy: {
       [sortBy]: sortOrder,
     },
-    include:{
-        doctorSpecialities:{
-            include:{
-                specialities:true
-            }
+    include: {
+      doctorSpecialities: {
+        include: {
+          specialities: true,
         },
-        doctorSchedules:{
-            select:{
-              scheduleId:true,
-              schedule:true
-            }
+      },
+      doctorSchedules: {
+        select: {
+          scheduleId: true,
+          schedule: true,
+        },
+      },
+      reviews: {
+        select:{
+          rating:true,
         }
-    }
+      },
+    },
   });
   const total = await prisma.doctor.count({
     where: whereConditions,
@@ -139,31 +144,38 @@ const updateDoctorProfile = async (
   });
 };
 
-const getDoctorById = async(id:string)=>{
-    const isDoctorExists = await prisma.doctor.findUniqueOrThrow({
-        where:{
-            id
-        }
-    })
-    return isDoctorExists;
-}
+const getDoctorById = async (id: string) => {
+  const isDoctorExists = await prisma.doctor.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    include:{
+      doctorSpecialities: true,
+      reviews:true,
+      appointments:true,
+      doctorSchedules:true
+    }
+  })
 
-const deleteDoctor = async(id:string)=>{
-    const isDoctorExists = await prisma.doctor.findUniqueOrThrow({
-        where:{
-            id
-        }
-    })
-    const result = await prisma.doctor.delete({
-        where:{
-            id: isDoctorExists.id
-        }
-    })
-    return result;
-}
+  return isDoctorExists;
+};
+
+const deleteDoctor = async (id: string) => {
+  const isDoctorExists = await prisma.doctor.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+  const result = await prisma.doctor.delete({
+    where: {
+      id: isDoctorExists.id,
+    },
+  });
+  return result;
+};
 
 const getAISuggestions = async (payload: { symtomps: string }) => {
-  console.log("symptoms",payload.symtomps)
+  console.log("symptoms", payload.symtomps);
   if (!payload?.symtomps?.trim()) {
     throw new ApiError(httpStatus.BAD_REQUEST, "symtomps is required");
   }
@@ -186,18 +198,17 @@ const getAISuggestions = async (payload: { symtomps: string }) => {
     );
   }
 
-const systemPrompt = "You are a helpful AI medical assistant that provides doctor suggestions.";
+  const systemPrompt =
+    "You are a helpful AI medical assistant that provides doctor suggestions.";
 
-const simplifiedDoctors = doctors.map(d => ({
-  id: d.id,
-  name: d.name,
-  experience: d.experience,
-  specialities: d.doctorSpecialities.map(
-    ds => ds.specialities.title
-  ),
-}));
+  const simplifiedDoctors = doctors.map((d) => ({
+    id: d.id,
+    name: d.name,
+    experience: d.experience,
+    specialities: d.doctorSpecialities.map((ds) => ds.specialities.title),
+  }));
 
- const prompt = `
+  const prompt = `
 You are a medical assistant AI. Based on the patient's symptoms, suggest the top 3 most suitable doctors.
 Each doctor has specialties and years of experience.
 Only suggest doctors who are relevant to the given symptoms.
@@ -215,19 +226,17 @@ Return your response in JSON format with full individual doctor data.
     messages: [
       { role: "system", content: systemPrompt.trim() },
       { role: "user", content: prompt.trim() },
-    ]
+    ],
   });
 
   const result = extractJsonFromMessage(completion.choices[0]?.message);
-  return result
-  
+  return result;
 };
-
 
 export const DoctorServices = {
   getDoctorList,
   updateDoctorProfile,
   getDoctorById,
   deleteDoctor,
-  getAISuggestions
+  getAISuggestions,
 };

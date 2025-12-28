@@ -9,6 +9,7 @@ enum UserStatus {
   ACTIVE
   INACTIVE
   ISDELETED
+  DELETED
 }
 
 enum Gender {
@@ -26,4 +27,28 @@ enum AppointmentStatus {
 enum PaymentStatus {
   PAID
   UNPAID
+}
+
+enum GenderType {
+  MALE
+  FEMALE
+  OTHERS
+}
+
+enum BloodGroup {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
 }
