@@ -7,7 +7,7 @@ import auth from "../../middlewares/auth";
 const router = express.Router();
 
 router.get("/profile", auth(UserRole.ADMIN,UserRole.PATIENT,UserRole.PATIENT), UserController.getMyProfile);
-
+router.get("/all-users", auth(UserRole.ADMIN), UserController.getAllUsers);
 router.post(
   "/create-patient",
   fileUploader.upload.single("file"),
@@ -43,6 +43,6 @@ router.post(
   }
 );
 
-router.get("/all-users", auth(UserRole.ADMIN), UserController.getAllUsers);
+router.patch("/:id/status", auth(UserRole.ADMIN), UserController.changeProfileStatus)
 
 export const userRoutes = router;
